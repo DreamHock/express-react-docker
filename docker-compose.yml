@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:5.0.2
+    restart: unless-stopped
+    # env_file: ./.env
+    ports:
+      - 27017:27017
+    volumes:
+      - /db:/data/db
+    networks:
+      - mern
+
+  express:
+    depends_on:
+      - mongodb
+    build: ./express
+    restart: unless-stopped
+    # env_file: ./.env
+    ports:
+      - 6060:6061
+    volumes:
+      - ./express:/app
+
+    networks:
+      - mern
+
+  react-mern:
+    depends_on:
+      - express
+    build: ./react-mern
+      # args:
+      #   - REACT_APP_API_BASE_URL=$CLIENT_API_BASE_URL
+    ports:
+      - 8080:8081
+    volumes:
+      - ./react-mern:/app
+    networks:
+      - mern
+
+volumes:
+  db:
+
+networks:
+  mern:
